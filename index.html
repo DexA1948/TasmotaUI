@@ -19,19 +19,30 @@
     <style>
         #loading-wrapper {
             position: fixed;
-            width: 100%;
-            height: 100%;
+            width: 100vw;
+            height: 100vh;
             left: 0;
-            top: 0;
-            background-color: rgba(55, 152, 128, 0.95);
+            top: -10px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            z-index: 1000;
         }
 
-        #loading-text img {
-            animation: glowing 4s infinite alternate;
+        .midbox {
+            background-color: rgba(55, 152, 128, 0.97);
+            display: inline-block;
+            color: #fff;
+            width: 100vw;
+            box-shadow: inset -7px -6px 20px 0px rgba(62, 199, 199, 0.2);
+            padding: 10px 20px;
+            border-radius: 20px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
 
         .ellipse-1,
@@ -40,43 +51,70 @@
         }
 
         .ellipse-1 {
-            background: #161a1a;
+            background: rgba(22, 26, 26, 0.7) url('favicon.png');
+            background-position: center;
+            background-repeat: no-repeat;
             border-radius: 50%;
             width: 200px;
             height: 200px;
             position: relative;
+        }
+
+        .ellipse-1::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             box-shadow: inset 8.28px 3.18px 11.46px 0px rgba(0, 0, 0, 0.9),
                 inset -4.46px -2.55px 12.74px 0px rgba(41, 221, 221, 0.7);
+            border-radius: inherit;
             animation: rotateShadow 4s linear infinite;
         }
 
-        @keyframes rotateShadow {
-            0%, 100% {
-                box-shadow: inset 8.28px 3.18px 11.46px 0px rgba(0, 0, 0, 0.9),
-                    inset -4.46px -2.55px 12.74px 0px rgba(41, 221, 221, 0.7);
+        #loading-text {
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        @keyframes dotAnimation {
+
+            0%,
+            60%,
+            100% {
+                opacity: 0;
             }
 
-            20% {
-                box-shadow: inset -4.46px -2.55px 12.74px 0px rgba(0, 0, 0, 0.9),
-                    inset -8.28px 3.18px 11.46px 0px rgba(41, 221, 221, 0.7);
-            }
-
-            40% {
-                box-shadow: inset -8.28px 3.18px 11.46px 0px rgba(0, 0, 0, 0.9),
-                    inset 4.46px -2.55px 12.74px 0px rgba(41, 221, 221, 0.7);
-            }
-
-            60% {
-                box-shadow: inset 4.46px -2.55px 12.74px 0px rgba(0, 0, 0, 0.9),
-                    inset 8.28px 3.18px 11.46px 0px rgba(41, 221, 221, 0.7);
-            }
-
+            20%,
             80% {
-                box-shadow: inset 8.28px 3.18px 11.46px 0px rgba(0, 0, 0, 0.9),
-                    inset -4.46px -2.55px 12.74px 0px rgba(41, 221, 221, 0.7);
+                opacity: 1;
             }
         }
 
+        .dot-animation {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background-color: #42eb1c;
+            border-radius: 50%;
+            margin-left: 5px;
+            animation: dotAnimation 1.5s infinite;
+        }
+
+        @keyframes rotateShadow {
+            0% {
+                box-shadow: inset 8.28px 3.18px 11.46px 0px rgba(0, 0, 0, 0.9),
+                    inset -4.46px -2.55px 12.74px 0px rgba(41, 221, 221, 0.7);
+                transform: rotate(0deg);
+            }
+
+            100% {
+                box-shadow: inset 8.28px 3.18px 11.46px 0px rgba(0, 0, 0, 0.9),
+                    inset -4.46px -2.55px 12.74px 0px rgba(41, 221, 221, 0.7);
+                transform: rotate(360deg);
+            }
+        }
 
         @keyframes glowing {
 
@@ -105,14 +143,14 @@
         </div>
 
         <div id="loading-wrapper">
-            <div id="loading-text">
+            <div class="midbox">
                 <div class="ellipse-1"></div>
+                <div id="loading-text"><span id="placeholder">Loading</span><span class="dot-animation"></span></div>
             </div>
-            <div id="loading-content"></div>
         </div>
 
         <div id="common-wrapper">
-            <img src="epallogo.png" alt="favicon loading" style="width: 250px;margin: 10px auto;">
+            <div class="ellipse-1"></div>
             <div>
                 <p class="wrapper-texter">Device Is Restarting.<br>Please Check Your Connection.</p>
                 <hr>
@@ -120,12 +158,12 @@
             </div>
         </div>
 
-        <hr>
+        <!-- <hr> -->
 
-        <div class="thewifibox">
-            <p class="h2 center">Select Your WiFi Network</p>
+        <div class="topwifibox">
+            <p class="h1 center">Select Your WiFi Network</p>
 
-            <div id="putwifishere">
+            <div id="putwifishere" class="putwifishere">
                 <div class="wifi-ssids">
                     <span onclick="c(this)">
                         Nepal Digital System
@@ -141,8 +179,12 @@
 
         <hr>
 
-        <div class="thewifibox">
-            <p class="h2 center">Wifi parameters</p>
+        <div class="thewifibox" id="thewifibox1">
+            <div class="thewifiboxoverlay" style="display: none;">
+                <div class="ellipse-2"></div>
+                <div class="loading-text"><span class="text-holder">Testing</span><span class="dot-animation"></span></div>
+            </div>
+            <p class="h2 center">WiFi Parameters</p>
             <p>WiFi Network</p>
             <div class="wifinetwork wifi-input">
                 <img src="wifi-input.svg" alt="Wifi Input Left SVG">
@@ -163,17 +205,49 @@
             </div>
             <button
                 onclick="performConnectionTest(document.getElementById('s1').value, document.getElementById('p1').value)"
-                class="button bgrn center">Save</button>
+                class="button bgrn center" id="connectionTestButton1">Save</button>
         </div>
 
-        <hr>
+        <!-- <hr> -->
 
-        <p class="clickables center" id="butmo" onclick="hidBtns()">More Options</p>
+        <div class="thewifibox" id="thewifibox2" style="display: none;">
+            <div class="thewifiboxoverlay" style="display: none;">
+                <div class="ellipse-2"></div>
+                <div class="loading-text"><span class="text-holder">Testing</span><span class="dot-animation"></span></div>
+            </div>
+            <p class="h2 center">Alternative WiFi Parameters</p>
+            <p>WiFi Network</p>
+            <div class="wifinetwork wifi-input">
+                <img src="wifi-input.svg" alt="Wifi Input Left SVG">
+
+                <input id="s2" placeholder="Wi-Fi" value="" name="s2">
+            </div>
+
+            <p>WiFi Password</p>
+            <div class="wifinetwork wifi-input">
+                <img src="password-input.svg" alt="Password Input Left SVG">
+
+                <input id="p2" type="password" placeholder="Password" name="p2">
+
+                <div class="passwordeye">
+                    <img src="passwordshow.svg" alt="Show Password Eye" id="passwordeyeshow" onclick="sp('p2')">
+                </div>
+
+            </div>
+            <button
+                onclick="performConnectionTest2(document.getElementById('s2').value, document.getElementById('p2').value)"
+                class="button bgrn center"  id="connectionTestButton2">Save</button>
+        </div>
+
+        <!-- <hr> -->
+
+        <p class="clickables center" id="butmo" onclick="hidBtns(true)">More Options</p>
 
         <button id="but0" style="display: none;" name="rst" class="button bred center"
             onclick="restartDevice()">Restart</button>
 
-
+        <p class="clickables center" id="butmo2" onclick="hidBtns(false)" style="display: none;margin-top: 20px;">Hide
+            More Options</p>
     </div>
 
 </body>

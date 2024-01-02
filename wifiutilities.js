@@ -189,7 +189,7 @@ function onLoad() {
                         }
 
                         // console.log("length", wifiContainer.children.length);
-                        for (let i = wifiContainer.children.length - 1; i > 2; i--) {
+                        for (let i = wifiContainer.children.length - 1; i > 4; i--) {
                             // console.log('child is');
                             // console.log(wifiContainer.children[i]);
                             wifiContainer.removeChild(wifiContainer.children[i]);
@@ -274,7 +274,23 @@ function signalStrengthSVG(p) {
     return (svg);
 }
 
+function showOverlay(selector, text) {
+    selector.style.display = "flex";
+    selector.querySelector(".text-holder").innerHTML = text;
+}
+
+function hideItem(selector) {
+    selector.style.display = "none";
+}
+
 async function performConnectionTest(ssid, pwd) {
+    let connectionButton = eb("connectionTestButton1");
+    connectionButton.disabled = true;
+    connectionButton.innerHTML = "Testing...";
+
+    let overlay = document.querySelector("#thewifibox1 .thewifiboxoverlay");
+    showOverlay(overlay, "Testing");
+
     console.log("Hello Testing Wifi");
     const endpoint1 = `http://192.168.4.1/cm?cmnd=WifiTest%20${ssid}%2B${pwd}`;
     const endpoint2 = "http://192.168.4.1/cm?cmnd=WifiTest";
@@ -308,18 +324,129 @@ async function performConnectionTest(ssid, pwd) {
                 // Log the new IP address
                 const newIPAddress = data3.StatusNET.IPAddress;
                 console.log("New IP Address: " + newIPAddress);
-                showSuccess("Successfully Saved SSID and PW" + data2.WiFiTest + "<br> New IP Address on SSID:" +ssid +"::" + newIPAddress, 10);
+
+                // Add to localstorage so can be found easily
+                localStorage.setItem('locIp1', newIPAddress);
+
+                // showSuccess("Successfully Saved SSID and PW" + data2.WiFiTest + "<br> New IP Address on SSID:" +ssid +"::" + newIPAddress, 10);
+                connectionButton.disabled = false;
+                connectionButton.innerHTML = "Save";
+                showOverlay(overlay, `!Success! <br><br> IP: ${newIPAddress} at ${ssid} <br><br>`);
+                setTimeout(() => { hideItem(overlay) }, 5000);
             } else {
                 console.log("Connection failed with message: " + data2.WiFiTest);
-                criticalErrorAndReload("Connection failed with message: " + data2.WiFiTest, 10);
+                // criticalErrorAndReload("Connection failed with message: " + data2.WiFiTest, 10);
+                connectionButton.disabled = false;
+                connectionButton.innerHTML = "Save";
+                showOverlay(overlay, `Connect Failed: Try Again <br><br> ${data2.WiFiTest} <br><br>`);
+                setTimeout(() => { hideItem(overlay) }, 5000);
             }
+        } else if (data1.WiFiTest === "Busy") {
+            console.log("Another WiFi is being tested right now");
+            // criticalErrorAndReload("Couldn't start Wifi Testing using SSID and Password <br> Wifi Testing Failed", 10);
+            connectionButton.disabled = false;
+            connectionButton.innerHTML = "Save";
+            showOverlay(overlay, `Another WiFi is being tested right now`);
+            setTimeout(() => { hideItem(overlay) }, 3000);
         } else {
             console.log("Error at endpoint 1 on sending SSID and Password");
-            criticalErrorAndReload("Couldn't start Wifi Testing using SSID and Password <br> Wifi Testing Failed", 10);
+            // criticalErrorAndReload("Couldn't start Wifi Testing using SSID and Password <br> Wifi Testing Failed", 10);
+            connectionButton.disabled = false;
+            connectionButton.innerHTML = "Save";
+            showOverlay(overlay, `Failed Testing: Try Again`);
+            setTimeout(() => { hideItem(overlay) }, 3000);
         }
     } catch (error) {
         console.error("An error occurred: " + error.message);
-        criticalErrorAndReload("An error occurred: " + error.message, 10);
+        // criticalErrorAndReload("An error occurred: " + error.message, 10);
+        connectionButton.disabled = false;
+        connectionButton.innerHTML = "Save";
+        showOverlay(overlay, `An Error Occured: Try Again`);
+        setTimeout(() => { hideItem(overlay) }, 3000);
+    }
+}
+
+
+async function performConnectionTest2(ssid, pwd) {
+    let connectionButton = eb("connectionTestButton2");
+    connectionButton.disabled = true;
+    connectionButton.innerHTML = "Testing...";
+
+    let overlay = document.querySelector("#thewifibox2 .thewifiboxoverlay");
+    showOverlay(overlay, "Testing");
+
+    console.log("Hello Testing Wifi");
+    const endpoint1 = `http://192.168.4.1/cm?cmnd=WifiTest2%20${ssid}%2B${pwd}`;
+    const endpoint2 = "http://192.168.4.1/cm?cmnd=WifiTest";
+    const endpoint3 = "http://192.168.4.1/cm?cmnd=status%205";
+
+    console.log(endpoint1);
+    try {
+        // Poll the first endpoint
+        const response1 = await fetch(endpoint1);
+        const data1 = await response1.json();
+        console.log("Test 2: Endpoint 1: " + JSON.stringify(data1));
+        if (data1.WiFiTest2 === "Testing") {
+
+            let data2;
+            do {
+                // Wait for 1 second before polling endpoint2
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                // Poll the second endpoint
+                const response2 = await fetch(endpoint2);
+                data2 = await response2.json();
+                console.log("Test 2: Endpoint 2: " + JSON.stringify(data2));
+            } while (data2.WiFiTest === "Testing");
+
+            if (data2.WiFiTest === "Successful") {
+                // If the connection is successful, poll the third endpoint
+                const response3 = await fetch(endpoint3);
+                const data3 = await response3.json();
+                console.log("Test 2: Endpoint 3: " + JSON.stringify(data3));
+
+                // Log the new IP address
+                const newIPAddress = data3.StatusNET.IPAddress;
+                console.log("Test 2: New IP Address: " + newIPAddress);
+
+                // Add to localstorage so can be found easily
+                localStorage.setItem('locIp2', newIPAddress);
+
+                // showSuccess("Successfully Saved SSID and PW" + data2.WiFiTest + "<br> New IP Address on SSID:" +ssid +"::" + newIPAddress, 10);
+                connectionButton.disabled = false;
+                connectionButton.innerHTML = "Save";
+                showOverlay(overlay, `!Success! <br><br> IP: ${newIPAddress} at ${ssid} <br><br>`);
+                setTimeout(() => { hideItem(overlay) }, 5000);
+            } else {
+                console.log("Test 2: Connection failed with message: " + data2.WiFiTest);
+                // criticalErrorAndReload("Connection failed with message: " + data2.WiFiTest, 10);
+                connectionButton.disabled = false;
+                connectionButton.innerHTML = "Save";
+                showOverlay(overlay, `Connect Failed: Try Again <br><br> ${data2.WiFiTest} <br><br>`);
+                setTimeout(() => { hideItem(overlay) }, 5000);
+            }
+        } else if (data1.WiFiTest === "Busy") {
+            console.log("Another WiFi is being tested right now");
+            // criticalErrorAndReload("Couldn't start Wifi Testing using SSID and Password <br> Wifi Testing Failed", 10);
+            connectionButton.disabled = false;
+            connectionButton.innerHTML = "Save";
+            showOverlay(overlay, `Another WiFi is being tested right now <br><br> Try Again Later <br><br>`);
+            setTimeout(() => { hideItem(overlay) }, 3000);
+        } else {
+            console.log("Test 2: Error at endpoint 1 on sending SSID and Password");
+            // criticalErrorAndReload("Couldn't start Wifi Testing using SSID and Password <br> Wifi Testing Failed", 10);
+            connectionButton.disabled = false;
+            connectionButton.innerHTML = "Save";
+            showOverlay(overlay, `Failed Testing: Try Again`);
+            setTimeout(() => { hideItem(overlay) }, 3000);
+        }
+    } catch (error) {
+        console.error("An error occurred: " + error.message);
+        // criticalErrorAndReload("An error occurred: " + error.message, 10);
+        connectionButton.disabled = false;
+        connectionButton.innerHTML = "Save";
+        showOverlay(overlay, `An Error Occured: Try Again`);
+        setTimeout(() => { hideItem(overlay) }, 3000);
     }
 }
 

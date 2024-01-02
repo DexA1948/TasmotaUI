@@ -16,9 +16,19 @@ function c(l) {
     eb('p1').focus();
 }
 
-function hidBtns() {
-    eb('butmo').style.display = 'none';
-    eb('but0').style.display = 'block';
+function hidBtns(a) {
+    if (a) {
+        eb('butmo').style.display = 'none';
+        eb('butmo2').style.display = 'block';
+        eb('but0').style.display = 'block';
+        eb('thewifibox2').style.display = 'block';
+    }else{
+        eb('butmo').style.display = 'block';
+        eb('butmo2').style.display = 'none';
+        eb('but0').style.display = 'none';
+        eb('thewifibox2').style.display = 'none';   
+    }
+
 }
 
 function jd() {
@@ -53,14 +63,14 @@ function startCountdown(a) {
     const timerSpan = document.querySelector('#common-wrapper .wrapper-timer span');
 
     // Set the countdown start value.
-    let timeLeft = a; 
+    let timeLeft = a;
 
     // Update the <span> tag with the current countdown value.
     timerSpan.textContent = timeLeft;
 
     // Start the countdown timer.
     const countdownInterval = setInterval(() => {
-        timeLeft -= 1; 
+        timeLeft -= 1;
         timerSpan.textContent = timeLeft;
 
         if (timeLeft <= 0) {
@@ -70,7 +80,7 @@ function startCountdown(a) {
     }, 1000);
 }
 
-function hideCommonWrapper(){
+function hideCommonWrapper() {
     document.getElementById('common-wrapper').style.display = 'none';
 }
 

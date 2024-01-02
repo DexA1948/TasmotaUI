@@ -3,11 +3,33 @@
   text-align: left;
 }
 
+body {
+  text-align: center;
+  font-family: verdana, sans-serif;
+  background-color: rgba(55, 152, 128, 0.8);
+  /* background: #151919; */
+}
+
 .motherbox {
   background: #151919;
   display: inline-block;
   color: #fff;
-  min-width: 340px;
+  max-width: 340px;
+  /* box-shadow: inset -2px -6px 20px 2px rgba(62, 199, 199, 0.1); */
+  box-shadow: inset -2px -6px 20px 2px rgba(255, 255, 255, 0.4);
+  padding: 10px 20px;
+  border-radius: 20px;
+}
+
+@media screen and (max-width: 400px) {
+  body{
+    margin: 0;
+  }
+  
+  .motherbox {
+    border-radius: 0px;
+    box-shadow: inset 0px -3px 13px 4px rgba(62, 199, 199, 0.3);
+  }
 }
 
 .center {
@@ -18,6 +40,7 @@
   font-size: 20px;
   color: #3ec7c7;
   font-weight: 500;
+  cursor: pointer;
 }
 
 p {
@@ -32,9 +55,62 @@ p {
   margin: 12px auto;
 }
 
-form, .thewifibox{
-  padding: 0px 0px 5px 0px;
-  margin-top: 20px;
+.h1 {
+  font-size: 22px;
+  line-height: 30px;
+  font-weight: 600;
+  /* border-bottom: 2px solid white; */
+  margin: 4px auto;
+}
+
+.thewifibox{
+  padding: 20px;
+  border: 1px solid #fff;
+  border-radius: 25px;
+  margin: 20px 0;
+  /* box-shadow: 5px 5px 10px rgba(62, 199, 199, 0.5);  */
+  position: relative;
+}
+
+.thewifiboxoverlay{
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(14, 42, 42, 0.9);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  border-radius: 25px;
+  /* font-size: 30px; */
+}
+
+.putwifishere{
+  padding: 0px 20px 20px 20px;
+  /* border: 1px solid #fff; */
+  border-radius: 4px;
+  margin: 20px 0 20px 0;
+  max-height: 30vh;
+  overflow-y: scroll;
+  /* box-shadow: 10px 0px 20px rgba(62, 199, 199, 0.2);  */
+  /* box-shadow: inset -7px -6px 20px 0px rgba(62, 199, 199, 0.2) */
+}
+
+.putwifishere::-webkit-scrollbar {
+  width: 5px; /* Adjust the width as desired for the scrollbar */
+}
+
+.putwifishere::-webkit-scrollbar-thumb {
+  background-color: #3ec7c7;
+  border-radius: 10px; /* To make the thumb oval-shaped */
+}
+
+.putwifishere::-webkit-scrollbar-track {
+  background: transparent; /* Make the scrollbar track transparent */
+  /* margin: 10px; */
 }
 
 div {
@@ -54,12 +130,6 @@ input {
   -moz-box-sizing: border-box;
   background: #dddddd;
   color: #000000;
-}
-
-body {
-  text-align: center;
-  font-family: verdana, sans-serif;
-  background: #151919;
 }
 
 .box {
@@ -138,12 +208,7 @@ a {
   padding-top: 4px;
   margin: 2px 0;
   padding-left: 15px;
-}
-
-#putwifishere{
-  padding: 0;
-  margin: 0;
-  margin-bottom: 20px;
+  cursor: pointer;
 }
 
 .mb-0{
@@ -162,6 +227,7 @@ a {
   align-items: center;
   flex-direction: column;
   gap: 10px;
+  z-index: 1000;
 }
 
 #common-wrapper img{
@@ -204,4 +270,40 @@ a {
   text-align: center;
   font-weight: 700;
   color: red;
+}
+
+.thewifiboxoverlay .loading-text {
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.ellipse-2,
+.ellipse-2 * {
+    box-sizing: border-box;
+}
+
+.ellipse-2 {
+    background: rgba(22, 26, 26, 0.7) url('favicon.png');
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.ellipse-2::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    box-shadow: inset 8.28px 3.18px 11.46px 0px rgba(0, 0, 0, 0.9),
+        inset -4.46px -2.55px 12.74px 0px rgba(41, 221, 221, 0.7);
+    border-radius: inherit;
+    animation: rotateShadow 4s linear infinite;
 }
