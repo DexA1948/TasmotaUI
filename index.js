@@ -22,11 +22,13 @@ function hidBtns(a) {
         eb('butmo2').style.display = 'block';
         eb('but0').style.display = 'block';
         eb('thewifibox2').style.display = 'block';
+        eb('connectionTestButton1').style.display = 'none';
     }else{
         eb('butmo').style.display = 'block';
         eb('butmo2').style.display = 'none';
         eb('but0').style.display = 'none';
-        eb('thewifibox2').style.display = 'none';   
+        eb('thewifibox2').style.display = 'none'; 
+        eb('connectionTestButton1').style.display = 'block';  
     }
 
 }
@@ -86,15 +88,17 @@ function hideCommonWrapper() {
 
 function restartDevice() {
     document.getElementById('common-wrapper').style.display = 'flex';
+    document.querySelector('#common-wrapper .wrapper-texter').innerHTML = '<hr><br> Device Is Restarting.<br>Please Check Your Connection at: <br><i>' + ( (localStorage.getItem('ssid1') == null) ? 'IP':localStorage.getItem('ssid1')) + ':' + localStorage.getItem('locIp1') +'</i>';
 
     if (confirm("Restart Device")) {
-        restartUrl = createUrl(locip, "restart%201");
+        restartUrl = createUrl(localStorage.getItem('connectedIp'), "restart%201");
+        console.log(restartUrl);
         fetch(restartUrl);
         startCountdown(30);
     }
 }
 
-function criticalErrorAndReload(message, countdown) {
+function criticalErrorAndReload(message, countdown=10) {
     hideLoadingWhole();
     document.getElementById('common-wrapper').style.display = 'flex';
     document.getElementById('common-wrapper').style.background = 'red';

@@ -55,8 +55,8 @@
             background-position: center;
             background-repeat: no-repeat;
             border-radius: 50%;
-            width: 200px;
-            height: 200px;
+            width: 100px;
+            height: 100px;
             position: relative;
         }
 
@@ -182,7 +182,8 @@
         <div class="thewifibox" id="thewifibox1">
             <div class="thewifiboxoverlay" style="display: none;">
                 <div class="ellipse-2"></div>
-                <div class="loading-text"><span class="text-holder">Testing</span><span class="dot-animation"></span></div>
+                <div class="loading-text"><span class="text-holder">Testing</span><span class="dot-animation"></span>
+                </div>
             </div>
             <p class="h2 center">WiFi Parameters</p>
             <p>WiFi Network</p>
@@ -203,6 +204,36 @@
                 </div>
 
             </div>
+
+            <div class="thewifibox" id="thewifibox2" style="display: none;">
+                <div class="thewifiboxoverlay" style="display: none;">
+                    <div class="ellipse-2"></div>
+                    <div class="loading-text"><span class="text-holder">Testing</span><span class="dot-animation"></span>
+                    </div>
+                </div>
+                <p class="h2 center">Alternative WiFi Parameters</p>
+                <p>WiFi Network</p>
+                <div class="wifinetwork wifi-input">
+                    <img src="wifi-input.svg" alt="Wifi Input Left SVG">
+    
+                    <input id="s2" placeholder="Wi-Fi" value="" name="s2">
+                </div>
+    
+                <p>WiFi Password</p>
+                <div class="wifinetwork wifi-input">
+                    <img src="password-input.svg" alt="Password Input Left SVG">
+    
+                    <input id="p2" type="password" placeholder="Password" name="p2">
+    
+                    <div class="passwordeye">
+                        <img src="passwordshow.svg" alt="Show Password Eye" id="passwordeyeshow" onclick="sp('p2')">
+                    </div>
+    
+                </div>
+                <button
+                    onclick="performConnectionTest2(document.getElementById('s2').value, document.getElementById('p2').value)"
+                    class="button bgrn center" id="connectionTestButton2">Save</button>
+            </div>
             <button
                 onclick="performConnectionTest(document.getElementById('s1').value, document.getElementById('p1').value)"
                 class="button bgrn center" id="connectionTestButton1">Save</button>
@@ -210,10 +241,11 @@
 
         <!-- <hr> -->
 
-        <div class="thewifibox" id="thewifibox2" style="display: none;">
+        <!-- <div class="thewifibox" id="thewifibox2" style="display: none;">
             <div class="thewifiboxoverlay" style="display: none;">
                 <div class="ellipse-2"></div>
-                <div class="loading-text"><span class="text-holder">Testing</span><span class="dot-animation"></span></div>
+                <div class="loading-text"><span class="text-holder">Testing</span><span class="dot-animation"></span>
+                </div>
             </div>
             <p class="h2 center">Alternative WiFi Parameters</p>
             <p>WiFi Network</p>
@@ -236,8 +268,8 @@
             </div>
             <button
                 onclick="performConnectionTest2(document.getElementById('s2').value, document.getElementById('p2').value)"
-                class="button bgrn center"  id="connectionTestButton2">Save</button>
-        </div>
+                class="button bgrn center" id="connectionTestButton2">Save</button>
+        </div> -->
 
         <!-- <hr> -->
 

@@ -23,14 +23,14 @@ function checkFirmwareConnection(ip) {
                 return true;
             } else {
                 console.error('Not connected to Firmware');
-                criticalErrorAndReload('Not connected to Firmware', 20);
+                criticalErrorAndReload('Not connected to Firmware', 40);
                 return false;
             }
         })
         .catch(error => {
             console.error('Error checking Firmware connection:', error);
             // Handle any errors
-            criticalErrorAndReload('Error checking Firmware connection', 20);
+            // criticalErrorAndReload('Error checking Firmware connection', 40);
 
             return false;
         });
@@ -97,16 +97,7 @@ function scanForWiFi(ip) {
 
 function scanAllWifi() {
     showLoadingWhole();
-    let ipAddress = getIpAddressFromUrl(window.location.hostname);
-
-    if (!ipAddress) {
-        locip = localStorage.getItem('locIp');
-        if (!locip) {
-            locip = prompt("File Mode. Please enter WLED IP!");
-            localStorage.setItem('locIp', locip);
-        }
-        ipAddress = locip;
-    }
+    let ipAddress = localStorage.getItem('connectedIp');
 
     if (ipAddress) {
         checkFirmwareConnection(ipAddress).then(isConnected => {
@@ -149,22 +140,35 @@ function scanAllWifi() {
 function onLoad() {
     showLoadingWhole();
     hideCommonWrapper();
-    let ipAddress = getIpAddressFromUrl(window.location.hostname);
 
-    if (!ipAddress) {
-        locip = localStorage.getItem('locIp');
-        if (!locip) {
-            locip = prompt("File Mode. Please enter WLED IP!");
-            localStorage.setItem('locIp', locip);
+    // Initialize an array to store potential IP addresses
+    let ipAddresses = [];
+
+    // Check if each of the IP addresses exists in localStorage and add them to the array
+    ['locIp', 'locIp1', 'locIp2'].forEach(key => {
+        let ip = localStorage.getItem(key);
+        if (ip) {
+            ipAddresses.push(ip);
         }
-        ipAddress = locip;
+    });
+
+    // If no IP addresses are stored, prompt the user to enter one
+    if (ipAddresses.length === 0) {
+        let newIp = prompt("File Mode. Please enter WLED IP!");
+        if (newIp) {
+            localStorage.setItem('locIp', newIp);
+            ipAddresses.push(newIp);
+        }
     }
 
-    if (ipAddress) {
-        checkFirmwareConnection(ipAddress).then(isConnected => {
+    let connectionAttempts = 0;
+
+    // Function to handle the firmware connection for a given IP address
+    const handleFirmwareConnection = (ipAddress) => {
+        return checkFirmwareConnection(ipAddress).then(isConnected => {
             if (isConnected) {
+                localStorage.setItem('connectedIp', ipAddress);
                 showLoadingWhole();
-                // scanForWiFi(ipAddress);
                 scanForWiFi(ipAddress)
                     .then(data => {
                         // console.log(data);
@@ -197,20 +201,186 @@ function onLoad() {
 
                     })
                     .catch(error => {
-                        // Handle any errors
                         console.error('WiFi scan failed:', error);
-                        // Handle any errors
                         criticalErrorAndReload('WiFi scan failed', 10);
                     }).finally(() => {
                         hideLoadingWhole();
                     });
+
+                return true;
+            } else {
+                // Increment the connection attempts counter
+                connectionAttempts++;
+                // Check if all attempts have been made
+                if (connectionAttempts === ipAddresses.length) {
+                    console.error('All connection attempts failed.');
+                }
+                return false;
             }
         });
+    };
+
+    // Iterate through the IP addresses and attempt a connection
+    ipAddresses.forEach(ipAddress => {
+        handleFirmwareConnection(ipAddress).then(isConnected => {
+            if (isConnected) {
+                console.log(`Connected using IP: ${ipAddress}`);
+                // localStorage.setItem('connectedIp', ipAddress);
+                // Break out of the loop if a connection is established
+                return;
+            }
+        });
+    });
+}
+
+async function onLoad() {
+    localStorage.setItem('defaultIp', '192.168.4.1');
+    showLoadingWhole();
+    hideCommonWrapper();
+
+    let connectionAttempts = 0;
+
+    const handleFirmwareConnection = async (ipAddress) => {
+        return checkFirmwareConnection(ipAddress).then(isConnected => {
+            if (isConnected) {
+                localStorage.setItem('connectedIp', ipAddress);
+                showLoadingWhole();
+                scanForWiFi(ipAddress)
+                    .then(data => {
+                        var wifiContainer = document.getElementById('putwifishere');
+                        while (wifiContainer.firstChild) {
+                            wifiContainer.removeChild(wifiContainer.firstChild);
+                        }
+
+                        Object.values(data.WiFiScan).forEach(network => {
+                            let networkContainer = document.createElement('div');
+                            networkContainer.classList.add('wifi-ssids');
+                            networkContainer.innerHTML = `<span onclick="c(this)">${network.SSId}</span><span class="q">${signalStrengthSVG(rssiToRating(network.RSSI))}</span>`;
+                            wifiContainer.appendChild(networkContainer);
+                        });
+
+                        while (wifiContainer.children.length > 5) {
+                            wifiContainer.removeChild(wifiContainer.lastChild);
+                        }
+
+                    })
+                    .catch(error => {
+                        console.error('WiFi scan failed:', error);
+                        criticalErrorAndReload('WiFi scan failed', 10);
+                    }).finally(() => {
+                        hideLoadingWhole();
+                    });
+
+                return true;
+            }
+            return false;
+        });
+    };
+
+    let ipAddress = getIpAddressFromUrl(window.location.hostname);
+
+    if (!ipAddress) {
+        let ipAddresses = ['defaultIp', 'locIp', 'locIp1', 'locIp2'].map(key => localStorage.getItem(key)).filter(ip => ip);
+
+        if (!localStorage.getItem('locIp')) {
+            let newIp = prompt("File Mode. Please enter IP for your EPAL device!");
+            if (newIp) {
+                localStorage.setItem('locIp', newIp);
+                ipAddresses.push(newIp);
+            }
+        }
+
+        for (const ipAddr of ipAddresses) {
+            const isConnected = await handleFirmwareConnection(ipAddr);
+            if (isConnected) {
+                console.log(`Connected using IP: ${ipAddr}`);
+                break;
+            } else {
+                connectionAttempts++;
+                if (connectionAttempts === ipAddresses.length) {
+                    console.error('All connection attempts failed.');
+                    criticalErrorAndReload("Connection Attempts Failed <br> Check your connection");
+                }
+            }
+        }
     } else {
-        console.error('Invalid IP address.');
-        criticalErrorAndReload('Invalid IP Address', 10);
+        const isConnected = await handleFirmwareConnection(ipAddress);
+        if (isConnected) {
+            console.log(`Connected using IP: ${ipAddress}`);
+        } else {
+            console.error('All connection attempts failed.');
+            criticalErrorAndReload("Connection Attempts Failed <br> Check your connection");
+        }
     }
 }
+
+
+
+// function onLoad() {
+//     showLoadingWhole();
+//     hideCommonWrapper();
+//     let ipAddress = getIpAddressFromUrl(window.location.hostname);
+
+//     if (!ipAddress) {
+//         locip = localStorage.getItem('locIp');
+//         if (!locip) {
+//             locip = prompt("File Mode. Please enter WLED IP!");
+//             localStorage.setItem('locIp', locip);
+//         }
+//         ipAddress = locip;
+//     }
+
+//     if (ipAddress) {
+//         checkFirmwareConnection(ipAddress).then(isConnected => {
+//             if (isConnected) {
+//                 showLoadingWhole();
+//                 // scanForWiFi(ipAddress);
+//                 scanForWiFi(ipAddress)
+//                     .then(data => {
+//                         // console.log(data);
+//                         // console.log(data.WiFiScan);
+//                         // console.log(data.WiFiScan.NET1);
+
+//                         var wifiContainer = document.getElementById('putwifishere');
+//                         for (let i = 0; i < wifiContainer.children.length; i++) {
+//                             // console.log(wifiContainer.children[i]);
+//                             wifiContainer.removeChild(wifiContainer.children[i]);
+//                         }
+
+//                         for (const key in data.WiFiScan) {
+//                             if (data.WiFiScan.hasOwnProperty(key)) {
+//                                 const network = data.WiFiScan[key];
+//                                 // console.log(network.SSId);
+//                                 networkContainer = document.createElement('div');
+//                                 networkContainer.classList.add('wifi-ssids');
+//                                 networkContainer.innerHTML = '<span onclick="c(this)">' + network.SSId + '</span>' + '<span class="q">' + signalStrengthSVG(rssiToRating(network.RSSI)) + '</span>';
+//                                 wifiContainer.appendChild(networkContainer);
+//                             }
+//                         }
+
+//                         // console.log("length", wifiContainer.children.length);
+//                         for (let i = wifiContainer.children.length - 1; i > 4; i--) {
+//                             // console.log('child is');
+//                             // console.log(wifiContainer.children[i]);
+//                             wifiContainer.removeChild(wifiContainer.children[i]);
+//                         }
+
+//                     })
+//                     .catch(error => {
+//                         // Handle any errors
+//                         console.error('WiFi scan failed:', error);
+//                         // Handle any errors
+//                         criticalErrorAndReload('WiFi scan failed', 10);
+//                     }).finally(() => {
+//                         hideLoadingWhole();
+//                     });
+//             }
+//         });
+//     } else {
+//         console.error('Invalid IP address.');
+//         criticalErrorAndReload('Invalid IP Address', 10);
+//     }
+// }
 
 // function rssiToPercentage(rssi) {
 //     let quality = 0;
@@ -327,19 +497,20 @@ async function performConnectionTest(ssid, pwd) {
 
                 // Add to localstorage so can be found easily
                 localStorage.setItem('locIp1', newIPAddress);
+                localStorage.setItem('ssid1', ssid);
 
                 // showSuccess("Successfully Saved SSID and PW" + data2.WiFiTest + "<br> New IP Address on SSID:" +ssid +"::" + newIPAddress, 10);
                 connectionButton.disabled = false;
                 connectionButton.innerHTML = "Save";
                 showOverlay(overlay, `!Success! <br><br> IP: ${newIPAddress} at ${ssid} <br><br>`);
-                setTimeout(() => { hideItem(overlay) }, 5000);
+                setTimeout(() => { hideItem(overlay) }, 10000);
             } else {
                 console.log("Connection failed with message: " + data2.WiFiTest);
                 // criticalErrorAndReload("Connection failed with message: " + data2.WiFiTest, 10);
                 connectionButton.disabled = false;
                 connectionButton.innerHTML = "Save";
-                showOverlay(overlay, `Connect Failed: Try Again <br><br> ${data2.WiFiTest} <br><br>`);
-                setTimeout(() => { hideItem(overlay) }, 5000);
+                showOverlay(overlay, `Primary WiFi Configurations Saved <br><br> Failed To Connect <br><br> ${data2.WiFiTest} <br><br>`);
+                setTimeout(() => { hideItem(overlay) }, 10000);
             }
         } else if (data1.WiFiTest === "Busy") {
             console.log("Another WiFi is being tested right now");
@@ -347,14 +518,14 @@ async function performConnectionTest(ssid, pwd) {
             connectionButton.disabled = false;
             connectionButton.innerHTML = "Save";
             showOverlay(overlay, `Another WiFi is being tested right now`);
-            setTimeout(() => { hideItem(overlay) }, 3000);
+            setTimeout(() => { hideItem(overlay) }, 10000);
         } else {
             console.log("Error at endpoint 1 on sending SSID and Password");
             // criticalErrorAndReload("Couldn't start Wifi Testing using SSID and Password <br> Wifi Testing Failed", 10);
             connectionButton.disabled = false;
             connectionButton.innerHTML = "Save";
             showOverlay(overlay, `Failed Testing: Try Again`);
-            setTimeout(() => { hideItem(overlay) }, 3000);
+            setTimeout(() => { hideItem(overlay) }, 10000);
         }
     } catch (error) {
         console.error("An error occurred: " + error.message);
@@ -362,23 +533,26 @@ async function performConnectionTest(ssid, pwd) {
         connectionButton.disabled = false;
         connectionButton.innerHTML = "Save";
         showOverlay(overlay, `An Error Occured: Try Again`);
-        setTimeout(() => { hideItem(overlay) }, 3000);
+        setTimeout(() => { hideItem(overlay) }, 10000);
     }
 }
 
 
 async function performConnectionTest2(ssid, pwd) {
+    await performConnectionTest(document.getElementById('s1').value, document.getElementById('p1').value);
+
     let connectionButton = eb("connectionTestButton2");
     connectionButton.disabled = true;
     connectionButton.innerHTML = "Testing...";
 
     let overlay = document.querySelector("#thewifibox2 .thewifiboxoverlay");
-    showOverlay(overlay, "Testing");
+    // showOverlay(overlay, "Testing");
 
     console.log("Hello Testing Wifi");
     const endpoint1 = `http://192.168.4.1/cm?cmnd=WifiTest2%20${ssid}%2B${pwd}`;
     const endpoint2 = "http://192.168.4.1/cm?cmnd=WifiTest";
     const endpoint3 = "http://192.168.4.1/cm?cmnd=status%205";
+    const endpoint4 = "http://192.168.4.1/cm?cmnd=SSID2";
 
     console.log(endpoint1);
     try {
@@ -397,7 +571,7 @@ async function performConnectionTest2(ssid, pwd) {
                 const response2 = await fetch(endpoint2);
                 data2 = await response2.json();
                 console.log("Test 2: Endpoint 2: " + JSON.stringify(data2));
-            } while (data2.WiFiTest === "Testing");
+            } while (data2.WiFiTest === "Testing" || data2.WiFiTest === "Not Started");
 
             if (data2.WiFiTest === "Successful") {
                 // If the connection is successful, poll the third endpoint
@@ -411,42 +585,59 @@ async function performConnectionTest2(ssid, pwd) {
 
                 // Add to localstorage so can be found easily
                 localStorage.setItem('locIp2', newIPAddress);
+                localStorage.setItem('ssid2', ssid);
 
                 // showSuccess("Successfully Saved SSID and PW" + data2.WiFiTest + "<br> New IP Address on SSID:" +ssid +"::" + newIPAddress, 10);
                 connectionButton.disabled = false;
                 connectionButton.innerHTML = "Save";
-                showOverlay(overlay, `!Success! <br><br> IP: ${newIPAddress} at ${ssid} <br><br>`);
-                setTimeout(() => { hideItem(overlay) }, 5000);
+                // showOverlay(overlay, `!Success! <br><br> IP: ${newIPAddress} at ${ssid} <br><br>`);
+                // setTimeout(() => { hideItem(overlay) }, 5000);
             } else {
                 console.log("Test 2: Connection failed with message: " + data2.WiFiTest);
                 // criticalErrorAndReload("Connection failed with message: " + data2.WiFiTest, 10);
                 connectionButton.disabled = false;
                 connectionButton.innerHTML = "Save";
-                showOverlay(overlay, `Connect Failed: Try Again <br><br> ${data2.WiFiTest} <br><br>`);
-                setTimeout(() => { hideItem(overlay) }, 5000);
+                // showOverlay(overlay, `Connect Failed: Try Again <br><br> ${data2.WiFiTest} <br><br>`);
+                // setTimeout(() => { hideItem(overlay) }, 5000);
             }
         } else if (data1.WiFiTest === "Busy") {
             console.log("Another WiFi is being tested right now");
             // criticalErrorAndReload("Couldn't start Wifi Testing using SSID and Password <br> Wifi Testing Failed", 10);
             connectionButton.disabled = false;
             connectionButton.innerHTML = "Save";
-            showOverlay(overlay, `Another WiFi is being tested right now <br><br> Try Again Later <br><br>`);
-            setTimeout(() => { hideItem(overlay) }, 3000);
+            // showOverlay(overlay, `Another WiFi is being tested right now <br><br> Try Again Later <br><br>`);
+            // setTimeout(() => { hideItem(overlay) }, 3000);
         } else {
             console.log("Test 2: Error at endpoint 1 on sending SSID and Password");
             // criticalErrorAndReload("Couldn't start Wifi Testing using SSID and Password <br> Wifi Testing Failed", 10);
             connectionButton.disabled = false;
             connectionButton.innerHTML = "Save";
-            showOverlay(overlay, `Failed Testing: Try Again`);
-            setTimeout(() => { hideItem(overlay) }, 3000);
+            // showOverlay(overlay, `Failed Testing: Try Again`);
+            // setTimeout(() => { hideItem(overlay) }, 3000);
         }
     } catch (error) {
         console.error("An error occurred: " + error.message);
         // criticalErrorAndReload("An error occurred: " + error.message, 10);
         connectionButton.disabled = false;
         connectionButton.innerHTML = "Save";
-        showOverlay(overlay, `An Error Occured: Try Again`);
-        setTimeout(() => { hideItem(overlay) }, 3000);
+        // showOverlay(overlay, `An Error Occured: Try Again`);
+        // setTimeout(() => { hideItem(overlay) }, 3000);
+    }
+
+    try {
+        const response4 = await fetch(endpoint4);
+        const data4 = await response4.json();
+        console.log("Test 2: Endpoint 4: " + JSON.stringify(data4));
+        if (data4.SSId2 === ssid) {
+            showOverlay(overlay, `Successfully Saved Alternative WiFI Credentials`);
+        } else {
+            showOverlay(overlay, `Warning Failed To Save Alternative WiFI Credentials`);
+            setTimeout(() => { hideItem(overlay) }, 10000);
+        }
+    } catch (error) {
+        console.error("An error occurred: " + error.message);
+        showOverlay(overlay, `Warning Failed To Save Alternative WiFI Credentials`);
+        setTimeout(() => { hideItem(overlay) }, 10000);
     }
 }
 
