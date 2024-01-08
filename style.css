@@ -22,10 +22,10 @@ body {
 }
 
 @media screen and (max-width: 400px) {
-  body{
+  body {
     margin: 0;
   }
-  
+
   .motherbox {
     border-radius: 0px;
     box-shadow: inset 0px -3px 13px 4px rgba(62, 199, 199, 0.3);
@@ -63,7 +63,7 @@ p {
   margin: 4px auto;
 }
 
-.thewifibox{
+.thewifibox {
   /* padding: 20px; */
   /* border: 1px solid #fff; */
   /* border-radius: 25px; */
@@ -72,7 +72,7 @@ p {
   /* position: relative; */
 }
 
-.thewifiboxoverlay{
+.thewifiboxoverlay {
   position: fixed;
   top: 0;
   bottom: 0;
@@ -90,11 +90,11 @@ p {
   z-index: 50;
 }
 
-#thewifibox2 .thewifiboxoverlay{
+#thewifibox2 .thewifiboxoverlay {
   z-index: 5;
 }
 
-.putwifishere{
+.putwifishere {
   padding: 0px 20px 20px 20px;
   /* border: 1px solid #fff; */
   border-radius: 4px;
@@ -171,6 +171,17 @@ input {
   font-weight: 400;
 }
 
+.wifi-input input:-webkit-autofill,
+.wifi-input input:-webkit-autofill:hover,
+.wifi-input input:-webkit-autofill:focus,
+.wifi-input input:-webkit-autofill:active {
+  outline: none;
+  border: none;
+  background: none;
+  color: #acacac;
+  font-weight: 400;
+}
+
 button {
   border: 0;
   border-radius: 18px;
@@ -217,7 +228,7 @@ a {
   cursor: pointer;
 }
 
-.mb-0{
+.mb-0 {
   margin-bottom: 0;
 }
 
@@ -236,25 +247,26 @@ a {
   z-index: 1000;
 }
 
-#common-wrapper img{
+#common-wrapper img {
   animation: glowing2 7s infinite alternate;
 }
 
 @keyframes glowing2 {
-
   0%,
   100% {
-      filter: brightness(100%) drop-shadow(0 0 0 #f8f9f898) drop-shadow(0 0 0 #ffffffa7);
-      /* width: 50px; */
+    filter: brightness(100%) drop-shadow(0 0 0 #f8f9f898)
+      drop-shadow(0 0 0 #ffffffa7);
+    /* width: 50px; */
   }
 
   50% {
-      filter: brightness(120%) drop-shadow(0 0 2px #f8f9f898) drop-shadow(0 0 3px #ffffffa7);
-      /* width: 60px; */
+    filter: brightness(120%) drop-shadow(0 0 2px #f8f9f898)
+      drop-shadow(0 0 3px #ffffffa7);
+    /* width: 60px; */
   }
 }
 
-.wrapper-texter{
+.wrapper-texter {
   font-size: 1rem;
   margin: 10px;
   text-align: center;
@@ -262,7 +274,7 @@ a {
   color: #fff;
 }
 
-.wrapper-timer{
+.wrapper-timer {
   font-size: 1rem;
   margin: 10px;
   text-align: center;
@@ -270,7 +282,7 @@ a {
   color: #fff;
 }
 
-.wrapper-timer span{
+.wrapper-timer span {
   font-size: 1rem;
   margin: 10px;
   text-align: center;
@@ -287,29 +299,29 @@ a {
 
 .ellipse-2,
 .ellipse-2 * {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 .ellipse-2 {
-    background: rgba(22, 26, 26, 0.7) url('favicon.png');
-    background-position: center;
-    background-repeat: no-repeat;
-    border-radius: 50%;
-    width: 100px;
-    height: 100px;
-    position: relative;
-    margin-bottom: 20px;
+  background: rgba(22, 26, 26, 0.7) url("favicon.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 50%;
+  width: 100px;
+  height: 100px;
+  position: relative;
+  margin-bottom: 20px;
 }
 
 .ellipse-2::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    box-shadow: inset 8.28px 3.18px 11.46px 0px rgba(0, 0, 0, 0.9),
-        inset -4.46px -2.55px 12.74px 0px rgba(41, 221, 221, 0.7);
-    border-radius: inherit;
-    animation: rotateShadow 4s linear infinite;
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  box-shadow: inset 8.28px 3.18px 11.46px 0px rgba(0, 0, 0, 0.9),
+    inset -4.46px -2.55px 12.74px 0px rgba(41, 221, 221, 0.7);
+  border-radius: inherit;
+  animation: rotateShadow 4s linear infinite;
 }
