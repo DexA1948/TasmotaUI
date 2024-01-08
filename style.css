@@ -78,7 +78,8 @@ p {
   bottom: 0;
   left: 0;
   right: 0;
-  background-color: rgba(14, 42, 42, 0.9);
+  /* background-color: rgba(14, 42, 42, 0.9); */
+  background-color: rgba(21, 25, 25, 0.9);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -133,8 +134,8 @@ input {
   box-sizing: border-box;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
-  background: #dddddd;
-  color: #000000;
+  /* background: #dddddd;
+  color: #000000; */
 }
 
 .box {
@@ -226,7 +227,7 @@ a {
   height: 100%;
   left: 0;
   top: 0;
-  background-color: rgba(55, 152, 128, 0.95);
+  background-color: #151919;
   display: flex;
   justify-content: center;
   align-items: center;

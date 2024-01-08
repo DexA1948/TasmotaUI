@@ -137,106 +137,10 @@ function scanAllWifi() {
     }
 }
 
-function onLoad() {
-    showLoadingWhole();
-    hideCommonWrapper();
-
-    // Initialize an array to store potential IP addresses
-    let ipAddresses = [];
-
-    // Check if each of the IP addresses exists in localStorage and add them to the array
-    ['locIp', 'locIp1', 'locIp2'].forEach(key => {
-        let ip = localStorage.getItem(key);
-        if (ip) {
-            ipAddresses.push(ip);
-        }
-    });
-
-    // If no IP addresses are stored, prompt the user to enter one
-    if (ipAddresses.length === 0) {
-        let newIp = prompt("File Mode. Please enter WLED IP!");
-        if (newIp) {
-            localStorage.setItem('locIp', newIp);
-            ipAddresses.push(newIp);
-        }
-    }
-
-    let connectionAttempts = 0;
-
-    // Function to handle the firmware connection for a given IP address
-    const handleFirmwareConnection = (ipAddress) => {
-        return checkFirmwareConnection(ipAddress).then(isConnected => {
-            if (isConnected) {
-                localStorage.setItem('connectedIp', ipAddress);
-                showLoadingWhole();
-                scanForWiFi(ipAddress)
-                    .then(data => {
-                        // console.log(data);
-                        // console.log(data.WiFiScan);
-                        // console.log(data.WiFiScan.NET1);
-
-                        var wifiContainer = document.getElementById('putwifishere');
-                        for (let i = 0; i < wifiContainer.children.length; i++) {
-                            // console.log(wifiContainer.children[i]);
-                            wifiContainer.removeChild(wifiContainer.children[i]);
-                        }
-
-                        for (const key in data.WiFiScan) {
-                            if (data.WiFiScan.hasOwnProperty(key)) {
-                                const network = data.WiFiScan[key];
-                                // console.log(network.SSId);
-                                networkContainer = document.createElement('div');
-                                networkContainer.classList.add('wifi-ssids');
-                                networkContainer.innerHTML = '<span onclick="c(this)">' + network.SSId + '</span>' + '<span class="q">' + signalStrengthSVG(rssiToRating(network.RSSI)) + '</span>';
-                                wifiContainer.appendChild(networkContainer);
-                            }
-                        }
-
-                        // console.log("length", wifiContainer.children.length);
-                        for (let i = wifiContainer.children.length - 1; i > 4; i--) {
-                            // console.log('child is');
-                            // console.log(wifiContainer.children[i]);
-                            wifiContainer.removeChild(wifiContainer.children[i]);
-                        }
-
-                    })
-                    .catch(error => {
-                        console.error('WiFi scan failed:', error);
-                        criticalErrorAndReload('WiFi scan failed', 10);
-                    }).finally(() => {
-                        hideLoadingWhole();
-                    });
-
-                return true;
-            } else {
-                // Increment the connection attempts counter
-                connectionAttempts++;
-                // Check if all attempts have been made
-                if (connectionAttempts === ipAddresses.length) {
-                    console.error('All connection attempts failed.');
-                }
-                return false;
-            }
-        });
-    };
-
-    // Iterate through the IP addresses and attempt a connection
-    ipAddresses.forEach(ipAddress => {
-        handleFirmwareConnection(ipAddress).then(isConnected => {
-            if (isConnected) {
-                console.log(`Connected using IP: ${ipAddress}`);
-                // localStorage.setItem('connectedIp', ipAddress);
-                // Break out of the loop if a connection is established
-                return;
-            }
-        });
-    });
-}
-
 async function onLoad() {
     localStorage.setItem('defaultIp', '192.168.4.1');
-    showLoadingWhole();
     hideCommonWrapper();
+    showLoadingWhole();
 
     let connectionAttempts = 0;
 
@@ -314,86 +218,6 @@ async function onLoad() {
     }
 }
 
-
-
-// function onLoad() {
-//     showLoadingWhole();
-//     hideCommonWrapper();
-//     let ipAddress = getIpAddressFromUrl(window.location.hostname);
-
-//     if (!ipAddress) {
-//         locip = localStorage.getItem('locIp');
-//         if (!locip) {
-//             locip = prompt("File Mode. Please enter WLED IP!");
-//             localStorage.setItem('locIp', locip);
-//         }
-//         ipAddress = locip;
-//     }
-
-//     if (ipAddress) {
-//         checkFirmwareConnection(ipAddress).then(isConnected => {
-//             if (isConnected) {
-//                 showLoadingWhole();
-//                 // scanForWiFi(ipAddress);
-//                 scanForWiFi(ipAddress)
-//                     .then(data => {
-//                         // console.log(data);
-//                         // console.log(data.WiFiScan);
-//                         // console.log(data.WiFiScan.NET1);
-
-//                         var wifiContainer = document.getElementById('putwifishere');
-//                         for (let i = 0; i < wifiContainer.children.length; i++) {
-//                             // console.log(wifiContainer.children[i]);
-//                             wifiContainer.removeChild(wifiContainer.children[i]);
-//                         }
-
-//                         for (const key in data.WiFiScan) {
-//                             if (data.WiFiScan.hasOwnProperty(key)) {
-//                                 const network = data.WiFiScan[key];
-//                                 // console.log(network.SSId);
-//                                 networkContainer = document.createElement('div');
-//                                 networkContainer.classList.add('wifi-ssids');
-//                                 networkContainer.innerHTML = '<span onclick="c(this)">' + network.SSId + '</span>' + '<span class="q">' + signalStrengthSVG(rssiToRating(network.RSSI)) + '</span>';
-//                                 wifiContainer.appendChild(networkContainer);
-//                             }
-//                         }
-
-//                         // console.log("length", wifiContainer.children.length);
-//                         for (let i = wifiContainer.children.length - 1; i > 4; i--) {
-//                             // console.log('child is');
-//                             // console.log(wifiContainer.children[i]);
-//                             wifiContainer.removeChild(wifiContainer.children[i]);
-//                         }
-
-//                     })
-//                     .catch(error => {
-//                         // Handle any errors
-//                         console.error('WiFi scan failed:', error);
-//                         // Handle any errors
-//                         criticalErrorAndReload('WiFi scan failed', 10);
-//                     }).finally(() => {
-//                         hideLoadingWhole();
-//                     });
-//             }
-//         });
-//     } else {
-//         console.error('Invalid IP address.');
-//         criticalErrorAndReload('Invalid IP Address', 10);
-//     }
-// }
-
-// function rssiToPercentage(rssi) {
-//     let quality = 0;
-
-//     if (rssi <= -100) {
-//       quality = 0;
-//     } else if (rssi >= -50) {
-//       quality = 100;
-//     } else {
-//       quality = 2 * (rssi + 100);
-//     }
-//     return quality;
-// }
 
 function rssiToRating(rssi) {
     // Define the RSSI range based on the environment.
@@ -503,7 +327,7 @@ async function performConnectionTest(ssid, pwd) {
                 connectionButton.disabled = false;
                 connectionButton.innerHTML = "Save";
                 showOverlay(overlay, `!Success! <br><br> IP: ${newIPAddress} at ${ssid} <br><br>`);
-                setTimeout(() => { hideItem(overlay) }, 10000);
+                setTimeout(() => { hideItem(overlay);restartDevice(); }, 10000);
             } else {
                 console.log("Connection failed with message: " + data2.WiFiTest);
                 // criticalErrorAndReload("Connection failed with message: " + data2.WiFiTest, 10);
@@ -592,6 +416,7 @@ async function performConnectionTest2(ssid, pwd) {
                 connectionButton.innerHTML = "Save";
                 // showOverlay(overlay, `!Success! <br><br> IP: ${newIPAddress} at ${ssid} <br><br>`);
                 // setTimeout(() => { hideItem(overlay) }, 5000);
+                setTimeout(() => { restartDevice(); }, 5000);
             } else {
                 console.log("Test 2: Connection failed with message: " + data2.WiFiTest);
                 // criticalErrorAndReload("Connection failed with message: " + data2.WiFiTest, 10);
@@ -629,7 +454,9 @@ async function performConnectionTest2(ssid, pwd) {
         const data4 = await response4.json();
         console.log("Test 2: Endpoint 4: " + JSON.stringify(data4));
         if (data4.SSId2 === ssid) {
+            console.log("Response from cmd SSID2", data4)
             showOverlay(overlay, `Successfully Saved Alternative WiFI Credentials`);
+            setTimeout(() => { hideItem(overlay) }, 10000);
         } else {
             showOverlay(overlay, `Warning Failed To Save Alternative WiFI Credentials`);
             setTimeout(() => { hideItem(overlay) }, 10000);
